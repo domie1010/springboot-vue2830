@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.JiankangrizhiDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.huanzhe_id as huanzheId
+        ,a.jiankangrizhi_time as jiankangrizhiTime
+        ,a.yinshi as yinshi
+        ,a.jiankang_types as jiankangTypes
+        ,a.xuetang as xuetang
+        ,a.xueya as xueya
+        ,a.xuezhi as xuezhi
+        ,a.yisheng_id as yishengId
+        ,a.jiankangrizhi_content as jiankangrizhiContent
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.JiankangrizhiView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,huanzhe.huanzhe_name as huanzheName
+        ,huanzhe.huanzhe_phone as huanzhePhone
+        ,huanzhe.huanzhe_id_number as huanzheIdNumber
+        ,huanzhe.huanzhe_address as huanzheAddress
+        ,huanzhe.huanzhe_time as huanzheTime
+        ,huanzhe.huanzhe_photo as huanzhePhoto
+        ,yisheng.yisheng_name as yishengName
+        ,yisheng.yisheng_phone as yishengPhone
+        ,yisheng.yisheng_id_number as yishengIdNumber
+        ,yisheng.yisheng_photo as yishengPhoto
+
+        FROM jiankangrizhi  a
+        left JOIN huanzhe huanzhe ON a.huanzhe_id = huanzhe.id
+        left JOIN yisheng yisheng ON a.yisheng_id = yisheng.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.huanzheId != null">
+                and a.huanzhe_id = #{params.huanzheId}
+            </if>
+            <if test=" params.jiankangrizhiTime != '' and params.jiankangrizhiTime != null and params.jiankangrizhiTime != 'null' ">
+                and a.jiankangrizhi_time like CONCAT('%',#{params.jiankangrizhiTime},'%')
+            </if>
+            <if test=" params.yinshi != '' and params.yinshi != null and params.yinshi != 'null' ">
+                and a.yinshi like CONCAT('%',#{params.yinshi},'%')
+            </if>
+            <if test="params.jiankangTypes != null">
+                and a.jiankang_types = #{params.jiankangTypes}
+            </if>
+            <if test="params.xuetangStart != null">
+                <![CDATA[  and a.xuetang >= #{params.xuetangStart}   ]]>
+            </if>
+            <if test="params.xuetangEnd != null">
+                <![CDATA[  and a.xuetang <= #{params.xuetangEnd}   ]]>
+            </if>
+            <if test="params.xueyaStart != null">
+                <![CDATA[  and a.xueya >= #{params.xueyaStart}   ]]>
+            </if>
+            <if test="params.xueyaEnd != null">
+                <![CDATA[  and a.xueya <= #{params.xueyaEnd}   ]]>
+            </if>
+            <if test="params.xuezhiStart != null">
+                <![CDATA[  and a.xuezhi >= #{params.xuezhiStart}   ]]>
+            </if>
+            <if test="params.xuezhiEnd != null">
+                <![CDATA[  and a.xuezhi <= #{params.xuezhiEnd}   ]]>
+            </if>
+            <if test="params.yishengId != null">
+                and a.yisheng_id = #{params.yishengId}
+            </if>
+            <if test=" params.jiankangrizhiContent != '' and params.jiankangrizhiContent != null and params.jiankangrizhiContent != 'null' ">
+                and a.jiankangrizhi_content like CONCAT('%',#{params.jiankangrizhiContent},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+            <if test=" params.huanzheName != '' and params.huanzheName != null and params.huanzheName != 'null' ">
+                and huanzhe.huanzhe_name like CONCAT('%',#{params.huanzheName},'%')
+            </if>
+            <if test=" params.huanzhePhone != '' and params.huanzhePhone != null and params.huanzhePhone != 'null' ">
+                and huanzhe.huanzhe_phone like CONCAT('%',#{params.huanzhePhone},'%')
+            </if>
+            <if test=" params.huanzheIdNumber != '' and params.huanzheIdNumber != null and params.huanzheIdNumber != 'null' ">
+                and huanzhe.huanzhe_id_number like CONCAT('%',#{params.huanzheIdNumber},'%')
+            </if>
+            <if test=" params.huanzheAddress != '' and params.huanzheAddress != null and params.huanzheAddress != 'null' ">
+                and huanzhe.huanzhe_address like CONCAT('%',#{params.huanzheAddress},'%')
+            </if>
+            <if test=" params.huanzheTimeStart != '' and params.huanzheTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(huanzhe.huanzhe_time) >= UNIX_TIMESTAMP(#{params.huanzheTimeStart}) ]]>
+            </if>
+            <if test=" params.huanzheTimeEnd != '' and params.huanzheTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(huanzhe.huanzhe_time) <= UNIX_TIMESTAMP(#{params.huanzheTimeEnd}) ]]>
+            </if>
+            <if test=" params.yishengName != '' and params.yishengName != null and params.yishengName != 'null' ">
+                and yisheng.yisheng_name like CONCAT('%',#{params.yishengName},'%')
+            </if>
+            <if test=" params.yishengPhone != '' and params.yishengPhone != null and params.yishengPhone != 'null' ">
+                and yisheng.yisheng_phone like CONCAT('%',#{params.yishengPhone},'%')
+            </if>
+            <if test=" params.yishengIdNumber != '' and params.yishengIdNumber != null and params.yishengIdNumber != 'null' ">
+                and yisheng.yisheng_id_number like CONCAT('%',#{params.yishengIdNumber},'%')
+            </if>
+        </where>
+        order by a.${params.orderBy} desc
+    </select>
+
+</mapper>

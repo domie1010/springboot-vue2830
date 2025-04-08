@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.BingliDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.huanzhe_id as huanzheId
+        ,a.bingli_types as bingliTypes
+        ,a.ruyuan_types as ruyuanTypes
+        ,a.ruyuan_time as ruyuanTime
+        ,a.bingli_file as bingliFile
+        ,a.bingli_content as bingliContent
+        ,a.bingli_yeson_types as bingliYesonTypes
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.BingliView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,huanzhe.huanzhe_name as huanzheName
+        ,huanzhe.huanzhe_phone as huanzhePhone
+        ,huanzhe.huanzhe_id_number as huanzheIdNumber
+        ,huanzhe.huanzhe_address as huanzheAddress
+        ,huanzhe.huanzhe_time as huanzheTime
+        ,huanzhe.huanzhe_photo as huanzhePhoto
+
+        FROM bingli  a
+        left JOIN huanzhe huanzhe ON a.huanzhe_id = huanzhe.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.huanzheId != null">
+                and a.huanzhe_id = #{params.huanzheId}
+            </if>
+            <if test="params.bingliTypes != null">
+                and a.bingli_types = #{params.bingliTypes}
+            </if>
+            <if test="params.ruyuanTypes != null">
+                and a.ruyuan_types = #{params.ruyuanTypes}
+            </if>
+            <if test=" params.ruyuanTimeStart != '' and params.ruyuanTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.ruyuan_time) >= UNIX_TIMESTAMP(#{params.ruyuanTimeStart}) ]]>
+            </if>
+            <if test=" params.ruyuanTimeEnd != '' and params.ruyuanTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.ruyuan_time) <= UNIX_TIMESTAMP(#{params.ruyuanTimeEnd}) ]]>
+            </if>
+            <if test=" params.bingliContent != '' and params.bingliContent != null and params.bingliContent != 'null' ">
+                and a.bingli_content like CONCAT('%',#{params.bingliContent},'%')
+            </if>
+            <if test="params.bingliYesonTypes != null">
+                and a.bingli_yeson_types = #{params.bingliYesonTypes}
+            </if>
+
+            <if test=" params.huanzheName != '' and params.huanzheName != null and params.huanzheName != 'null' ">
+                and huanzhe.huanzhe_name like CONCAT('%',#{params.huanzheName},'%')
+            </if>
+            <if test=" params.huanzhePhone != '' and params.huanzhePhone != null and params.huanzhePhone != 'null' ">
+                and huanzhe.huanzhe_phone like CONCAT('%',#{params.huanzhePhone},'%')
+            </if>
+            <if test=" params.huanzheIdNumber != '' and params.huanzheIdNumber != null and params.huanzheIdNumber != 'null' ">
+                and huanzhe.huanzhe_id_number like CONCAT('%',#{params.huanzheIdNumber},'%')
+            </if>
+            <if test=" params.huanzheAddress != '' and params.huanzheAddress != null and params.huanzheAddress != 'null' ">
+                and huanzhe.huanzhe_address like CONCAT('%',#{params.huanzheAddress},'%')
+            </if>
+            <if test=" params.huanzheTimeStart != '' and params.huanzheTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(huanzhe.huanzhe_time) >= UNIX_TIMESTAMP(#{params.huanzheTimeStart}) ]]>
+            </if>
+            <if test=" params.huanzheTimeEnd != '' and params.huanzheTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(huanzhe.huanzhe_time) <= UNIX_TIMESTAMP(#{params.huanzheTimeEnd}) ]]>
+            </if>
+        </where>
+        order by a.${params.orderBy} desc
+    </select>
+
+</mapper>
